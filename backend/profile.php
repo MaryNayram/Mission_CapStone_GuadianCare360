@@ -113,10 +113,9 @@ $total_bookmarked = $select_bookmark->rowCount();
 
 <footer class="footer">
 
-   &copy;  copyright @ 2025 by <span>GuardianCare360</span> | all rights reserved!
+   &copy; copyright @ <?= date('Y'); ?> by <span>GuardianCare360</span> | all rights reserved!
 
 </footer>
-
 <!-- footer section ends -->
 
 <!-- custom js file link  -->
