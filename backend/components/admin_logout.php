@@ -1,9 +1,16 @@
 <?php
+// Include database connection
+include 'connect.php';
 
-   include 'connect.php';
+// Expire the tutor_id cookie
+setcookie('tutor_id', '', time() - 3600, '/');
 
-   setcookie('tutor_id', '', time() - 1, '/');
+// Optional: destroy session if used
+// session_start();
+// session_unset();
+// session_destroy();
 
-   header('location:../admin/login.php');
-
+// Redirect to login page
+header('Location: ../admin/login.php');
+exit;
 ?>

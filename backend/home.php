@@ -1,12 +1,7 @@
 <?php
-
 include 'components/connect.php';
 
-if(isset($_COOKIE['user_id'])){
-   $user_id = $_COOKIE['user_id'];
-}else{
-   $user_id = '';
-}
+$user_id = $_COOKIE['user_id'] ?? '';
 
 $select_likes = $conn->prepare("SELECT * FROM `likes` WHERE user_id = ?");
 $select_likes->execute([$user_id]);
@@ -19,165 +14,141 @@ $total_comments = $select_comments->rowCount();
 $select_bookmark = $conn->prepare("SELECT * FROM `bookmark` WHERE user_id = ?");
 $select_bookmark->execute([$user_id]);
 $total_bookmarked = $select_bookmark->rowCount();
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Home</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
 
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
-   <!-- custom css file link  -->
-   <link rel="stylesheet" href="css/style.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
 
+  <!-- AOS Animation -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <?php include 'components/user_header.php'; ?>
 
-<!-- quick select section starts  -->
-
-<section class="quick-select">
-
-   <h1 class="heading">Quick options</h1>
-
-   <div class="box-container">
-
-      <?php
-         if($user_id != ''){
-      ?>
-      <div class="box">
-         <h3 class="title">Likes and comments</h3>
-         <p>Total likes : <span><?= $total_likes; ?></span></p>
-         <a href="likes.php" class="inline-btn">View likes</a>
-         <p>Total comments : <span><?= $total_comments; ?></span></p>
-         <a href="comments.php" class="inline-btn">View comments</a>
-         <p>Saved playlist : <span><?= $total_bookmarked; ?></span></p>
-         <a href="bookmark.php" class="inline-btn">View bookmark</a>
+<!-- Quick Select Section -->
+<section class="quick-select" data-aos="fade-up">
+  <h1 class="heading">Quick Options</h1>
+  <div class="box-container">
+    <?php if ($user_id != '') { ?>
+    <div class="box" data-aos="zoom-in">
+      <h3 class="title">Likes and Comments</h3>
+      <p>Total Likes: <span><?= $total_likes; ?></span></p>
+      <a href="likes.php" class="inline-btn">View Likes</a>
+      <p>Total Comments: <span><?= $total_comments; ?></span></p>
+      <a href="comments.php" class="inline-btn">View Comments</a>
+      <p>Saved Playlists: <span><?= $total_bookmarked; ?></span></p>
+      <a href="bookmark.php" class="inline-btn">View Bookmarks</a>
+    </div>
+    <?php } else { ?>
+    <div class="box" style="text-align: center;" data-aos="zoom-in">
+      <h3 class="title">Please Login or Register</h3>
+      <div class="flex-btn" style="padding-top: .5rem;">
+        <a href="login.php" class="option-btn">Login</a>
+        <a href="register.php" class="option-btn">Register</a>
       </div>
-      <?php
-         }else{ 
-      ?>
-      <div class="box" style="text-align: center;">
-         <h3 class="title">Please login or register</h3>
-          <div class="flex-btn" style="padding-top: .5rem;">
-            <a href="login.php" class="option-btn">Login</a>
-            <a href="register.php" class="option-btn">Register</a>
-         </div>
+    </div>
+    <?php } ?>
+
+    <div class="box" data-aos="zoom-in">
+      <h3 class="title">Top Categories</h3>
+      <div class="flex">
+        <a href="search_course.php"><i class="fa fa-shield"></i><span>CIA</span></a>
+        <a href="#"><i class="fa fa-thumb-tack"></i><span>Threat Landscape</span></a>
+        <a href="#"><i class="fa fa-unlock-alt"></i><span>Key Concepts</span></a>
+        <a href="#"><i class="fas fa-chart-line"></i><span>Marketing</span></a>
+        <a href="#"><i class="fas fa-clock"></i><span>Terminologies</span></a>
+        <a href="#"><i class="fa fa-user-secret"></i><span>Patient Safety</span></a>
+        <a href="#"><i class="fa fa-vcard"></i><span>Awareness</span></a>
+        <a href="#"><i class="fa fa-warning"></i><span>Ransomware</span></a>
       </div>
-      <?php
-      }
-      ?>
+    </div>
 
-      <div class="box">
-         <h3 class="title">Top categories</h3>
-         <div class="flex">
-            <a href="search_course.php?"><i class="	fa fa-shield"></i><span>CIA</span></a>
-            <a href="#"><i class="fa fa-thumb-tack"></i><span>Threat Landscape</span></a>
-            <a href="#"><i class="	fa fa-unlock-alt"></i><span>Key concepts</span></a>
-            <a href="#"><i class="fas fa-chart-line"></i><span>marketing</span></a>
-            <a href="#"><i class="fas fa-clock"></i><span>Terminologies</span></a>
-            <a href="#"><i class="fa fa-user-secret"></i><span>Patient safety</span></a>
-            <a href="#"><i class="fa fa-vcard"></i><span>Awareness</span></a>
-            <a href="#"><i class="fa fa-warning"></i><span>Ransomware</span></a>
-         </div>
+    <div class="box" data-aos="zoom-in">
+      <h3 class="title">Popular Topics</h3>
+      <div class="flex">
+        <a href="#"><i class="fa fa-search"></i><span>Phishing Awareness</span></a>
+        <a href="#"><i class="fa fa-toggle-on"></i><span>Cybersecurity Fundamentals</span></a>
+        <a href="#"><i class="fa fa-laptop"></i><span>Securing Devices</span></a>
+        <a href="#"><i class="fa fa-user-circle"></i><span>Data Privacy</span></a>
+        <a href="#"><i class="fa fa-spinner"></i><span>Password Practices</span></a>
+        <a href="#"><i class="fa fa-tty"></i><span>Incident Response</span></a>
       </div>
+    </div>
 
-      <div class="box">
-         <h3 class="title">Popular topics</h3>
-         <div class="flex">
-            <a href="#"><i class="fa fa-search"></i><span>Phishing Awareness and Prevention</span></a>
-            <a href="#"><i class="fa fa-toggle-on"></i><span>Cybersecurity Fundamentals for Healthcare Professionals</span></a>
-            <a href="#"><i class="fa fa-laptop"></i><span>Securing Physical Devices and Workstations</span></a>
-            <a href="#"><i class="fa fa-user-circle"></i><span>Data Privacy</span></a>
-            <a href="#"><i class="fa fa-spinner"></i><span>Secure Password Practices in Healthcare</span></a>
-            <a href="#"><i class="fa fa-tty"></i><span>Incident Response and Reporting</span></a>
-         </div>
-      </div>
-
-      <div class="box tutor">
-         <h3 class="title">Be a trainer</h3>
-         <p>Do you have passion for cybersecurity? Be a part of this revolution.</p>
-         <a href="admin/register.php" class="inline-btn">Get started here</a>
-      </div>
-
-   </div>
-
+    <div class="box tutor" data-aos="zoom-in">
+      <h3 class="title">Be a Trainer</h3>
+      <p>Do you have a passion for cybersecurity? Join the movement.</p>
+      <a href="admin/register.php" class="inline-btn">Get Started</a>
+    </div>
+  </div>
 </section>
 
-<!-- quick select section ends -->
-
-<!-- courses section starts  -->
-
-<section class="courses">
-
-   <h1 class="heading">Latest courses</h1>
-
-   <div class="box-container">
-
-      <?php
-         $select_courses = $conn->prepare("SELECT * FROM `playlist` WHERE status = ? ORDER BY date DESC LIMIT 6");
-         $select_courses->execute(['active']);
-         if($select_courses->rowCount() > 0){
-            while($fetch_course = $select_courses->fetch(PDO::FETCH_ASSOC)){
-               $course_id = $fetch_course['id'];
-
-               $select_tutor = $conn->prepare("SELECT * FROM `tutors` WHERE id = ?");
-               $select_tutor->execute([$fetch_course['tutor_id']]);
-               $fetch_tutor = $select_tutor->fetch(PDO::FETCH_ASSOC);
-      ?>
-      <div class="box">
-         <div class="tutor">
-            <img src="uploaded_files/<?= $fetch_tutor['image']; ?>" alt="">
-            <div>
-               <h3><?= $fetch_tutor['name']; ?></h3>
-               <span><?= $fetch_course['date']; ?></span>
-            </div>
-         </div>
-         <img src="uploaded_files/<?= $fetch_course['thumb']; ?>" class="thumb" alt="">
-         <h3 class="title"><?= $fetch_course['title']; ?></h3>
-         <a href="playlist.php?get_id=<?= $course_id; ?>" class="inline-btn">View playlist</a>
+<!-- Courses Section -->
+<section class="courses" data-aos="fade-up">
+  <h1 class="heading">Latest Courses</h1>
+  <div class="box-container">
+    <?php
+    $select_courses = $conn->prepare("SELECT * FROM `playlist` WHERE status = ? ORDER BY date DESC LIMIT 6");
+    $select_courses->execute(['active']);
+    if ($select_courses->rowCount() > 0) {
+      while ($fetch_course = $select_courses->fetch(PDO::FETCH_ASSOC)) {
+        $course_id = $fetch_course['id'];
+        $select_tutor = $conn->prepare("SELECT * FROM `tutors` WHERE id = ?");
+        $select_tutor->execute([$fetch_course['tutor_id']]);
+        $fetch_tutor = $select_tutor->fetch(PDO::FETCH_ASSOC);
+    ?>
+    <div class="box" data-aos="zoom-in">
+      <div class="tutor">
+        <img src="uploaded_files/<?= $fetch_tutor['image']; ?>" alt="">
+        <div>
+          <h3><?= $fetch_tutor['name']; ?></h3>
+          <span>October 2025</span>
+        </div>
       </div>
-      <?php
-         }
-      }else{
-         echo '<p class="empty">no courses added yet!</p>';
+      <img src="uploaded_files/<?= $fetch_course['thumb']; ?>" class="thumb" alt="">
+      <h3 class="title"><?= $fetch_course['title']; ?></h3>
+      <a href="playlist.php?get_id=<?= $course_id; ?>" class="inline-btn">View Playlist</a>
+    </div>
+    <?php
       }
-      ?>
+    } else {
+      echo '<p class="empty">No courses added yet!</p>';
+    }
+    ?>
+  </div>
 
-   </div>
-
-   <div class="more-btn">
-      <a href="courses.php" class="inline-option-btn">View more</a>
-   </div>
-
+  <div class="more-btn">
+    <a href="courses.php" class="inline-option-btn">View More</a>
+  </div>
 </section>
 
-<!-- courses section ends -->
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- footer section starts  -->
+<!-- Footer Section -->
 <?php include 'components/footer.php'; ?>
-<!-- footer section ends -->
 
-<!-- custom js file link  -->
+<!-- Scripts -->
 <script src="js/script.js"></script>
-   
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 800,
+    once: true
+  });
+</script>
+
 </body>
 </html>
