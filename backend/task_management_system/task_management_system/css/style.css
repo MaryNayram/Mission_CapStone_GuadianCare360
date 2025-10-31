@@ -1,12 +1,16 @@
 /* ✅ Base layout fix for dashboard */
 .body {
   margin-left: 240px; /* matches sidebar width */
-  padding-top: 80px;  /* if header is fixed */
+  padding-top: 80px;  /* space for fixed header */
   padding-right: 20px;
   padding-left: 20px;
+  transition: margin-left 0.3s ease;
+}
+.body.collapsed {
+  margin-left: 0 !important;
 }
 
-/* ✅ Sidebar styling */
+/* ✅ Sidebar styling with slide-in animation */
 .side-bar {
   position: fixed;
   top: 0;
@@ -19,11 +23,17 @@
   padding-top: 20px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
   z-index: 999;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
 }
+.side-bar.collapsed {
+  transform: translateX(-100%);
+}
+
+/* ✅ Sidebar links */
 .side-bar .nav-link {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding: 12px 15px;
   margin-bottom: 10px;
@@ -44,6 +54,65 @@
 .side-bar .nav-link:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateX(5px);
+}
+
+/* ✅ Header styling */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: rgba(20, 22, 24, 0.85);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.header .u-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.header .u-name b {
+  color: #00f7ff;
+  margin-left: 4px;
+  text-shadow: 0 0 6px #00f7ff;
+}
+.header label,
+.header .notification {
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.header label:hover,
+.header .notification:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 247, 255, 0.6);
+}
+
+/* ✅ Notification bar */
+.notification-bar {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 300px;
+  background: rgba(0, 255, 255, 0.9);
+  color: #000;
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  display: none;
+  z-index: 999;
+}
+.notification-bar ul {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  list-style: none;
 }
 
 /* ✅ Dashboard grid layout */
@@ -148,13 +217,8 @@
 /* ✅ Responsive tweaks */
 @media (max-width: 768px) {
   .body {
-    margin-left: 0;
+    margin-left: 0 !important;
     padding-top: 100px;
-  }
-  .side-bar {
-    width: 100%;
-    height: auto;
-    position: relative;
   }
   .dashboard-grid {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

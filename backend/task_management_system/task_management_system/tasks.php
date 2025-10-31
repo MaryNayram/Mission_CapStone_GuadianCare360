@@ -7,43 +7,34 @@ if (isset($_SESSION['role'], $_SESSION['id']) && $_SESSION['role'] === "admin") 
 	include "app/Model/User.php";
 
 	$text = "All Tasks";
-	$tasks = [];
-	$num_task = 0;
+	$tasks = get_all_tasks($conn);
 
-	if (isset($_GET['due_date'])) {
+	if (!empty($_GET['due_date'])) {
 		switch ($_GET['due_date']) {
 			case "Due Today":
 				$text = "Due Today";
 				$tasks = get_all_tasks_due_today($conn);
-				$num_task = count_tasks_due_today($conn);
 				break;
 			case "Overdue":
 				$text = "Overdue";
 				$tasks = get_all_tasks_overdue($conn);
-				$num_task = count_tasks_overdue($conn);
 				break;
 			case "No Deadline":
 				$text = "No Deadline";
 				$tasks = get_all_tasks_NoDeadline($conn);
-				$num_task = count_tasks_NoDeadline($conn);
 				break;
-			default:
-				$tasks = get_all_tasks($conn);
-				$num_task = count_tasks($conn);
 		}
-	} else {
-		$tasks = get_all_tasks($conn);
-		$num_task = count_tasks($conn);
 	}
 
 	$users = get_all_users($conn);
 
-	if (isset($_GET['assigned_to']) && $_GET['assigned_to'] !== '') {
+	if (!empty($_GET['assigned_to'])) {
 		$tasks = array_filter($tasks, fn($t) => $t['assigned_to'] == $_GET['assigned_to']);
 	}
-	if (isset($_GET['status']) && $_GET['status'] !== '') {
+	if (!empty($_GET['status'])) {
 		$tasks = array_filter($tasks, fn($t) => strtolower($t['status']) == strtolower($_GET['status']));
 	}
+
 	$num_task = count($tasks);
 ?>
 <!DOCTYPE html>
@@ -55,43 +46,12 @@ if (isset($_SESSION['role'], $_SESSION['id']) && $_SESSION['role'] === "admin") 
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 	<link rel="stylesheet" href="css/style.css">
-	<style>
-		body {
-			background: linear-gradient(135deg, #1abc9c, #0f2027);
-			font-family: 'Segoe UI', sans-serif;
-			color: #fff;
-			min-height: 100vh;
-		}
-		.body {
-			margin-left: 240px;
-			padding: 20px;
-		}
-		.floating-create-task {
-			position: fixed;
-			bottom: 30px;
-			right: 30px;
-			background: #127b8e;
-			color: #fff;
-			padding: 12px 20px;
-			border-radius: 50px;
-			font-size: 16px;
-			box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-			text-decoration: none;
-			z-index: 999;
-			transition: transform 0.2s ease, background 0.3s ease;
-		}
-		.floating-create-task i {
-			margin-right: 8px;
-		}
-		.floating-create-task:hover {
-			background: #0e5f6f;
-			transform: scale(0.98);
-		}
-	</style>
 </head>
 <body>
 	<?php include "inc/header.php"; ?>
-	<?php include "inc/nav.php"; ?>
+	<nav class="side-bar" id="sidebar">
+		<?php include "inc/nav.php"; ?>
+	</nav>
 
 	<div class="body">
 		<section class="section-1">
@@ -100,15 +60,15 @@ if (isset($_SESSION['role'], $_SESSION['id']) && $_SESSION['role'] === "admin") 
 			<form method="GET" action="tasks.php" class="d-flex flex-wrap gap-2 mb-3">
 				<select name="due_date" class="form-select form-select-sm" style="width: 180px;">
 					<option value="">All Deadlines</option>
-					<option value="Due Today" <?= $_GET['due_date'] == 'Due Today' ? 'selected' : '' ?>>Due Today</option>
-					<option value="Overdue" <?= $_GET['due_date'] == 'Overdue' ? 'selected' : '' ?>>Overdue</option>
-					<option value="No Deadline" <?= $_GET['due_date'] == 'No Deadline' ? 'selected' : '' ?>>No Deadline</option>
+					<option value="Due Today" <?= ($_GET['due_date'] ?? '') === 'Due Today' ? 'selected' : '' ?>>Due Today</option>
+					<option value="Overdue" <?= ($_GET['due_date'] ?? '') === 'Overdue' ? 'selected' : '' ?>>Overdue</option>
+					<option value="No Deadline" <?= ($_GET['due_date'] ?? '') === 'No Deadline' ? 'selected' : '' ?>>No Deadline</option>
 				</select>
 
 				<select name="assigned_to" class="form-select form-select-sm" style="width: 180px;">
 					<option value="">All Users</option>
 					<?php foreach ($users as $user): ?>
-						<option value="<?= $user['id'] ?>" <?= isset($_GET['assigned_to']) && $_GET['assigned_to'] == $user['id'] ? 'selected' : '' ?>>
+						<option value="<?= $user['id'] ?>" <?= ($_GET['assigned_to'] ?? '') == $user['id'] ? 'selected' : '' ?>>
 							<?= htmlspecialchars($user['full_name']) ?>
 						</option>
 					<?php endforeach; ?>
@@ -116,9 +76,9 @@ if (isset($_SESSION['role'], $_SESSION['id']) && $_SESSION['role'] === "admin") 
 
 				<select name="status" class="form-select form-select-sm" style="width: 180px;">
 					<option value="">All Statuses</option>
-					<option value="pending" <?= $_GET['status'] == 'pending' ? 'selected' : '' ?>>Pending</option>
-					<option value="in progress" <?= $_GET['status'] == 'in progress' ? 'selected' : '' ?>>In Progress</option>
-					<option value="completed" <?= $_GET['status'] == 'completed' ? 'selected' : '' ?>>Completed</option>
+					<option value="pending" <?= ($_GET['status'] ?? '') === 'pending' ? 'selected' : '' ?>>Pending</option>
+					<option value="in progress" <?= ($_GET['status'] ?? '') === 'in progress' ? 'selected' : '' ?>>In Progress</option>
+					<option value="completed" <?= ($_GET['status'] ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
 				</select>
 
 				<button type="submit" class="btn btn-sm btn-outline-primary">Filter</button>
@@ -190,7 +150,6 @@ if (isset($_SESSION['role'], $_SESSION['id']) && $_SESSION['role'] === "admin") 
 		</section>
 	</div>
 
-		<!-- Floating Create Task Button -->
 	<a href="create_task.php" class="floating-create-task">
 		<i class="fas fa-plus"></i> Create Task
 	</a>
@@ -202,8 +161,7 @@ if (isset($_SESSION['role'], $_SESSION['id']) && $_SESSION['role'] === "admin") 
 </html>
 <?php
 } else {
-	$em = "First login";
-	header("Location: login.php?error=" . urlencode($em));
+	header("Location: login.php?error=" . urlencode("First login"));
 	exit();
 }
 ?>

@@ -1,34 +1,29 @@
-<?php  
+<?php
+// app/Model/Notification.php
 
-function get_all_my_notifications($conn, $id){
-	$sql = "SELECT * FROM notifications WHERE recipient=?";
-	$stmt = $conn->prepare($sql);
-	$stmt->execute([$id]);
+function get_all_my_notifications($conn, $id) {
+    $sql = "SELECT * FROM notifications WHERE recipient=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$id]);
 
-	if($stmt->rowCount() > 0){
-		$notifications = $stmt->fetchAll();
-	}else $notifications = 0;
-
-	return $notifications;
+    return $stmt->rowCount() > 0 ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 }
 
-
-function count_notification($conn, $id){
-	$sql = "SELECT id FROM notifications WHERE recipient=? AND is_read=0";
-	$stmt = $conn->prepare($sql);
-	$stmt->execute([$id]);
-
-	return $stmt->rowCount();
+function count_notification($conn, $id) {
+    $sql = "SELECT id FROM notifications WHERE recipient=? AND is_read=0";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$id]);
+    return $stmt->rowCount();
 }
 
-function insert_notification($conn, $data){
-	$sql = "INSERT INTO notifications (message, recipient, type) VALUES(?,?,?)";
-	$stmt = $conn->prepare($sql);
-	$stmt->execute($data);
+function insert_notification($conn, $data) {
+    $sql = "INSERT INTO notifications (message, recipient, type) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($data);
 }
 
-function notification_make_read($conn, $recipient_id, $notification_id){
-	$sql = "UPDATE notifications SET is_read=1 WHERE id=? AND recipient=?";
-	$stmt = $conn->prepare($sql);
-	$stmt->execute([$notification_id, $recipient_id]);
+function notification_make_read($conn, $recipient_id, $notification_id) {
+    $sql = "UPDATE notifications SET is_read=1 WHERE id=? AND recipient=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([$notification_id, $recipient_id]);
 }

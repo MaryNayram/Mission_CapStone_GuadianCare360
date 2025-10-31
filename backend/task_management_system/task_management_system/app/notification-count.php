@@ -1,28 +1,38 @@
 <?php
 session_start();
+if (!isset($_SESSION['id'], $_SESSION['role'])) exit;
 
-if (isset($_SESSION['role'], $_SESSION['id'])) {
-    include "../DB_connection.php";
-    include "Model/Notification.php";
+include "../DB_connection.php";
+include "Model/Notification.php";
+include "Model/notification_all.php";
 
-    // Fetch all notifications for the current user
-    $notifications = get_all_my_notifications($conn, $_SESSION['id']);
-    $unread_count = 0;
+/**
+ * Count all unread notifications for a user (personal + broadcast)
+ */
+function count_combined_unread($conn, $user_id, $role) {
+    $count = 0;
 
-    // Count unread notifications
-    if (!empty($notifications) && is_array($notifications)) {
-        foreach ($notifications as $notification) {
-            if (isset($notification['is_read']) && $notification['is_read'] == 0) {
-                $unread_count++;
-            }
+    // Personal unread
+    $personal_unread = count_notification($conn, $user_id);
+    $count += $personal_unread;
+
+    // Broadcast unread
+    $broadcasts = get_broadcast_notifications($conn, $role);
+    foreach ($broadcasts as $b) {
+        if (empty($b['read'])) {
+            $count++;
         }
     }
 
-    // Output badge if there are unread notifications
-    if ($unread_count > 0) {
-        echo '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">'
-           . htmlspecialchars($unread_count) .
-           '</span>';
-    }
+    return $count;
 }
-?>
+
+// Get unread count
+$unread_count = count_combined_unread($conn, $_SESSION['id'], $_SESSION['role']);
+
+// Output badge if there are unread notifications
+if ($unread_count > 0) {
+    echo '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">'
+       . htmlspecialchars($unread_count) .
+       '</span>';
+}

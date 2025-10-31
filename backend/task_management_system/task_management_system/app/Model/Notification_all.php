@@ -2,24 +2,29 @@
 // app/Model/notification_all.php
 
 /**
- * Fetch all active broadcast notifications for a specific role (e.g., 'employee').
+ * Fetch all active broadcast notifications for the current user.
  *
- * @param PDO $conn - The database connection
- * @param string $role - The target role to filter messages (default: 'employee')
- * @return array - List of broadcast notifications
+ * @param PDO $conn
+ * @param string $role
+ * @return array
  */
 function get_broadcast_notifications($conn, $role = 'employee') {
-    $sql = "SELECT * FROM notification_all 
-            WHERE target_role = ? AND is_active = TRUE 
-            ORDER BY date DESC";
+    if (!isset($_SESSION['id'])) return [];
+
+    $sql = "SELECT n.*, IFNULL(r.read_at, '') AS read_at
+            FROM notification_all n
+            LEFT JOIN notification_read r 
+                ON n.id = r.broadcast_id AND r.user_id = ?
+            WHERE n.target_role = ? AND n.is_active = TRUE
+            ORDER BY n.date DESC";
     
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$role]);
+    $stmt->execute([$_SESSION['id'], $role]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
- * Send a new broadcast notification to all users of a specific role.
+ * Send a broadcast notification to all users of a role.
  *
  * @param PDO $conn
  * @param string $message
@@ -29,8 +34,7 @@ function get_broadcast_notifications($conn, $role = 'employee') {
  * @return bool
  */
 function send_broadcast_notification($conn, $message, $type = 'general', $role = 'employee', $created_by = null) {
-    $date = date('Y-m-d');
-
+    $date = date('Y-m-d H:i:s');
     $sql = "INSERT INTO notification_all (message, type, date, target_role, created_by, is_active)
             VALUES (?, ?, ?, ?, ?, TRUE)";
     
@@ -39,34 +43,7 @@ function send_broadcast_notification($conn, $message, $type = 'general', $role =
 }
 
 /**
- * Fetch all broadcast notifications with optional filters (for admin view).
- *
- * @param PDO $conn
- * @param string $role
- * @param string $type
- * @return array
- */
-function get_all_broadcast_notifications($conn, $role = '', $type = '') {
-    $sql = "SELECT * FROM notification_all WHERE 1=1";
-    $params = [];
-
-    if (!empty($role)) {
-        $sql .= " AND target_role = ?";
-        $params[] = $role;
-    }
-    if (!empty($type)) {
-        $sql .= " AND type = ?";
-        $params[] = $type;
-    }
-
-    $sql .= " ORDER BY date DESC";
-    $stmt = $conn->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-/**
- * Count how many users have read a specific broadcast.
+ * Count users who have read a broadcast.
  *
  * @param PDO $conn
  * @param int $broadcast_id
@@ -79,7 +56,7 @@ function get_broadcast_read_count($conn, $broadcast_id) {
 }
 
 /**
- * Count total users by role (for read stats).
+ * Count total users by role.
  *
  * @param PDO $conn
  * @param string $role
@@ -89,4 +66,18 @@ function get_total_users_by_role($conn, $role) {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE role = ?");
     $stmt->execute([$role]);
     return (int) $stmt->fetchColumn();
+}
+
+/**
+ * Mark a broadcast as read by a user.
+ *
+ * @param PDO $conn
+ * @param int $broadcast_id
+ * @param int $user_id
+ * @return bool
+ */
+function mark_broadcast_as_read($conn, $broadcast_id, $user_id) {
+    $sql = "INSERT IGNORE INTO notification_read (broadcast_id, user_id, read_at) VALUES (?, ?, NOW())";
+    $stmt = $conn->prepare($sql);
+    return $stmt->execute([$broadcast_id, $user_id]);
 }
